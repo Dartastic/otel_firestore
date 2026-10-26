@@ -1,14 +1,14 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_firestore_suppression.dart';
 
 const _tracerName = 'dartastic_otel_libs_firestore';
 const _systemValue = 'firestore';
 
-Tracer _tracer() => OTel.tracerProvider().getTracer(_tracerName);
+APITracer _tracer() => OTelAPI.tracerProvider().getTracer(_tracerName);
 
 /// Wraps a Firestore document operation (get/set/update/delete) in
 /// a CLIENT span using OTel db.* semconv.
@@ -33,14 +33,14 @@ Future<T> tracedFirestoreDoc<T>({
   final span = _tracer().startSpan(
     'firestore $operation $collection',
     kind: SpanKind.client,
-    attributes: OTel.attributesFromMap(m),
+    attributes: OTelAPI.attributesFromMap(m),
   );
   try {
     return await invoke();
   } catch (e, st) {
-    span.addAttributes(OTel.attributes([
-      OTel.attributeString(
-        ErrorResource.errorType.key,
+    span.addAttributes(OTelAPI.attributes([
+      OTelAPI.attributeString(
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
@@ -73,13 +73,13 @@ Future<T> tracedFirestoreQuery<T>({
   final span = _tracer().startSpan(
     'firestore query $collection',
     kind: SpanKind.client,
-    attributes: OTel.attributesFromMap(m),
+    attributes: OTelAPI.attributesFromMap(m),
   );
   try {
     final v = await invoke();
     if (documentCountOf != null) {
-      span.addAttributes(OTel.attributes([
-        OTel.attributeInt(
+      span.addAttributes(OTelAPI.attributes([
+        OTelAPI.attributeInt(
           'firestore.documents.count',
           documentCountOf(v),
         ),
@@ -87,9 +87,9 @@ Future<T> tracedFirestoreQuery<T>({
     }
     return v;
   } catch (e, st) {
-    span.addAttributes(OTel.attributes([
-      OTel.attributeString(
-        ErrorResource.errorType.key,
+    span.addAttributes(OTelAPI.attributes([
+      OTelAPI.attributeString(
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
@@ -121,14 +121,14 @@ Future<T> tracedFirestoreTransaction<T>({
   final span = _tracer().startSpan(
     'firestore transaction',
     kind: SpanKind.internal,
-    attributes: OTel.attributesFromMap(m),
+    attributes: OTelAPI.attributesFromMap(m),
   );
   try {
     return await invoke();
   } catch (e, st) {
-    span.addAttributes(OTel.attributes([
-      OTel.attributeString(
-        ErrorResource.errorType.key,
+    span.addAttributes(OTelAPI.attributes([
+      OTelAPI.attributeString(
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
